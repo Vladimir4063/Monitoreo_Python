@@ -1,0 +1,25 @@
+from ConextionDB.connectionDB import *
+	import requests
+
+try:
+    def Change1pwtx():
+        cursor.execute(
+            "select t.trnfechaproceso, c.idcliente, c.clinrodocumento from wallet.dbo.transacciones t inner join wallet.dbo.clientes c on t.idcliente=c.idcliente where t.idtranstipo in (12,16,18) and t.trnfechaproceso >= (select dateadd(minute, -10, getdate())) and t.idcliente in (select hc.idcliente from wallet.dbo.historialcliente hc with(nolock) where hc.changeinfo like '%cliFecVtoClave%' and hc.fecha >= (select dateadd(minute, -10, getdate())))"
+        )
+        valorfetchall = cursor.fetchall()
+
+        if valorfetchall:
+
+            for valorRow in valorfetchall:
+                idClienteRow = valorRow[1]
+                identifRow = valorRow[2]
+                              
+                msg = "Alerta cambio contraseña y transferencia saliente de Cliente: " + str(idClienteRow) + ", DNI: " +str(identifRow).strip()
+                id = "@Alertasoperativos"
+                token = "2078467335:AAHERh-U6gO0Dl2ephjt_NgggHAcV3I3AC4"
+                url = "https://api.telegram.org/bot" + token + "/sendMessage"
+                data = {'chat_id': id, 'text': msg}
+                requests.post(url, params=data)
+
+except Exception as ex:
+    print(ex) 

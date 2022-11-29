@@ -1,0 +1,40 @@
+from ConextionDB.connectionDB import *
+import requests
+
+try:
+
+    def Onboardingemeiduplicado():
+        cursor.execute(
+            "SELECT c.idCliente, c.cliNroDocumento, c.cliIMEI, c.FecINS FROM [Wallet].[dbo].[Clientes] c inner join [FraudControl].[dbo].[BlackListDevice] b on c.cliIMEI = b.IdDevice and   c.FecINS >=  DATEADD(minute, -10000, GETDATE()) "
+        )
+
+        valorfetchall = cursor.fetchall()
+
+        if valorfetchall:
+
+            for valorRow in valorfetchall:
+                idClienteRow = valorRow[0]
+                identifRow = valorRow[1]
+                imeiRow = valorRow[2]
+                fechaRow = valorRow[3]
+
+		cursorupdate = connection.cursor2()
+        		
+sql_update_query = """update [Wallet].[dbo].[Clientes] set cliactivo = 0 where idcliente == %s"""
+        		input_data = (idClienteRow)
+        		cursorupdate.execute(sql_update_query, input_data)
+        		connection.commit()
+
+                #cursor2.execute(
+		#"update [Wallet].[dbo].[Clientes] set cliactivo = 0 where idcliente = ?",(idClienteRow)
+                #)
+
+                msg = "Alerta onboading imei bloqueado de Cliente: " + str(idClienteRow) + ", DNI: " + str(identifRow).strip() + ", Imei: " + str(imeiRow).strip() + ", Fecha: " + str(fechaRow).strip()
+                id = "@pentasspruebas"
+                token ="2113501642:AAEIYh3fPTa4SEyYXQ6kiOIwy96v4PVzqtA"
+                url = "https://api.telegram.org/bot" + token + "/sendMessage"
+                data = {'chat_id': id, 'text': msg}
+                requests.post(url, params=data)
+
+except Exception as ex:
+    print(ex)

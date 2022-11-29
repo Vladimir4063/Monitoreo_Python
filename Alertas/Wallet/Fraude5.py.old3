@@ -1,0 +1,26 @@
+from ConextionDB.connectionDB import *
+
+try:
+    def FraudeAlertaTX5():
+        cursor.execute(
+            "SELECT w.idCliente, cli.Identification, w.trnImporte,wapi.StatusData FROM [FraudControl].[dbo].[TransactionWallet] w with (nolock) inner join [FraudControl].[dbo].[TransactionWalletApiCodes] wapi on w.id = wapi.IdTransaccion and w.trnImporte >50000 and w.trnFechaProceso >=  DATEADD(minute, -5, GETDATE()) and w.idtranstipo in (13,17,20) inner join [FraudControl].[dbo].[ClientType] ct on w.idCliente = ct.IdClientExterno inner join [FraudControl].[dbo].[Client] cli on ct.ClientId = cli.Id"
+
+        )
+
+        valorfetchall = cursor.fetchall()
+        mensaje_alerta = ""
+
+        if valorfetchall:
+            valor0 = valorfetchall[0]
+            valor1 = valor0[0]
+            valor2 = valor0[1]
+            valor3 = valor0[2]
+            valor4 = valor0[3]
+
+            if valor1 > 0:
+                mensaje_alerta = "Alerta tx entrante de cliente : "+ str(valor1) + ", dni: " + str(valor2) + ", importe: " + str(valor3)+ ", estado: " + str(valor4)
+                return(mensaje_alerta)
+
+
+except Exception as ex:
+    print(ex)

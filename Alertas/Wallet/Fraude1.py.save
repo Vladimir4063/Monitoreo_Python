@@ -1,0 +1,18 @@
+from ConextionDB.connectionDB import *
+
+try:
+    def FraudeAlertaTX():
+        cursor.execute(
+             "SELECT count(idtxgateway)FROM [FraudControl].[dbo].[Transaction] where Processed = 0"            
+        )
+        valor = cursor.fetchval()
+        valorstring=str(valor)
+        mensaje_alerta = " "
+
+        if valor > 1000:
+            mensaje_alerta = "Fraude - con problemas cantidad de t
+x  en estado 0: " + valorstring
+	return(mensaje_alerta)
+
+except Exception as ex:
+    print(ex)
